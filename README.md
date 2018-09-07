@@ -5,8 +5,6 @@ package jsonrpc2
 
 import (
 	"errors"
-	"log"
-	"tradingengine/exchange"
 )
 
 type echoParams struct {
