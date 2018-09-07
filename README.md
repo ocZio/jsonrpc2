@@ -12,7 +12,7 @@ type echoParams struct {
 }
 
 func echo(params *echoParams) (interface{}, error) {
-	if params.SellCurrency == nil {
+	if params.Message == nil {
 		return nil, errors.New("missing message")
 	}
 
