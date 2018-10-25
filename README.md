@@ -1,11 +1,13 @@
 # jsonrpc2
 
 ```golang
-package jsonrpc2
+package main
 
 import (
 	"errors"
-)
+	"./jsonrpc2"
+	"net/http"
+	)
 
 type echoParams struct {
 	Message  *string `json:"message"`
@@ -19,9 +21,12 @@ func echo(params *echoParams) (interface{}, error) {
 	return params.Message, nil
 }
 
-func StartJSONRPCServer(entryPoint string, ip string, port string) {
-	server := NewServer(entryPoint, ip, port)
+func myFn(r *http.Request) bool {
+	return true
+}
 
+func main(){
+	server := jsonrpc2.NewServer("/jsonrpc", "0.0.0.0", "8008", myFn)
 	server.RegisterFunc("echo", echo)
 
 	server.Start()

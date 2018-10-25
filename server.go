@@ -14,21 +14,31 @@ type handler struct {
 	params interface{}
 }
 
+type authFn func(*http.Request) bool
+
 type server struct {
 	handlers   map[string]handler
-	ip_port    string
+	ipPort     string
 	entrypoint string
+	authFn     authFn
 }
 
-func NewServer(entrypoint, ip, port string) *server {
+func NewServer(entrypoint, ip, port string, fn authFn) *server {
 	return &server{
 		handlers:   make(map[string]handler),
-		ip_port:    fmt.Sprintf("%s:%s", ip, port),
+		ipPort:     fmt.Sprintf("%s:%s", ip, port),
 		entrypoint: entrypoint,
+		authFn:     fn,
 	}
 }
 
 func jsonrpc(rpcserver *server, w http.ResponseWriter, r *http.Request) {
+	if !rpcserver.authFn(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintf(w, "Error: Authorization is required")
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Error: Method needs to be POST, you have used %s", r.Method)
@@ -107,8 +117,8 @@ func (s *server) Start() {
 	})
 
 	// start the server
-	log.Println("Starting JSONRPC server...", s.ip_port)
-	err := http.ListenAndServe(s.ip_port, nil)
+	log.Println("Starting JSONRPC server...", s.ipPort)
+	err := http.ListenAndServe(s.ipPort, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
