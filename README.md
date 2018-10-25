@@ -16,7 +16,7 @@ func echo(params *echoParams) (interface{}, error) {
 		return nil, errors.New("missing message")
 	}
 
-	return params.message, nil
+	return params.Message, nil
 }
 
 func StartJSONRPCServer(entryPoint string, ip string, port string) {
